@@ -6,7 +6,7 @@ import {
 	filter,
 	converge,
 	anyPass,
-	curry,
+	lte,
 	not,
 } from 'ramda';
 
@@ -43,8 +43,6 @@ const countRed = compose(count, filter(isRed));
 const countBlue = compose(count, filter(isBlue));
 const countOrange = compose(count, filter(isOrange));
 
-const moreOrEqual = curry((first, second) => second >= first);
-
 // 1. Красная звезда, зеленый квадрат, все остальные белые.
 export const validateFieldN1 = allPass([
 	compose(isWhite, getTriangle),
@@ -54,7 +52,7 @@ export const validateFieldN1 = allPass([
 ]);
 
 // 2. Как минимум две фигуры зеленые.
-export const validateFieldN2 = compose(moreOrEqual(2), countGreen);
+export const validateFieldN2 = compose(lte(2), countGreen);
 
 // 3. Количество красных фигур равно кол-ву синих.
 export const validateFieldN3 = converge(equals, [countRed, countBlue]);
@@ -68,16 +66,16 @@ export const validateFieldN4 = allPass([
 
 // 5. Три фигуры одного любого цвета кроме белого (четыре фигуры одного цвета – это тоже true).
 export const validateFieldN5 = anyPass([
-	compose(moreOrEqual(3), countRed),
-	compose(moreOrEqual(3), countBlue),
-	compose(moreOrEqual(3), countGreen),
-	compose(moreOrEqual(3), countOrange),
+	compose(lte(3), countRed),
+	compose(lte(3), countBlue),
+	compose(lte(3), countGreen),
+	compose(lte(3), countOrange),
 ]);
 
 // 6. Две зеленые фигуры (одна из них треугольник), еще одна любая красная.
 export const validateFieldN6 = allPass([
-	compose(moreOrEqual(2), countGreen),
-	compose(moreOrEqual(1), countRed),
+	compose(equals(2), countGreen),
+	compose(equals(1), countRed),
 	compose(isGreen, getTriangle),
 ]);
 

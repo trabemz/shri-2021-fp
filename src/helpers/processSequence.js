@@ -21,7 +21,8 @@ import {
 	compose,
 	prop,
 	tap,
-	curry,
+	gt,
+	lt,
 	match,
 	when,
 	not,
@@ -41,12 +42,13 @@ const getAnimal = (value) => api.get(`https://animals.tech/${value}`, {});
 const convertToBinary = (value) =>
 	api.get('https://api.tech/numbers/base', { from: 10, to: 2, number: value });
 
-const more = curry((first, second) => second > first);
-const less = curry((first, second) => second < first);
+const parseValueToInt = compose(Math.round, parseFloat);
+
 const isFloat = allPass([
-	compose(more(2), getLength),
-	compose(less(10), getLength),
-	match(/^[0-9]+\.?[0-9]*/g),
+	compose(lt(2), getLength),
+	compose(gt(10), getLength),
+	match(/^[0-9]*\.?[0-9]*$/g),
+	compose(lt(0), parseValueToInt),
 ]);
 
 const throwValidationError = () => {
@@ -57,8 +59,6 @@ const validateValue = when(compose(not, isFloat), throwValidationError);
 const pow = partialRight(Math.pow, [2]);
 const divideByThreeRemainder = (x) => x % 3;
 
-const parseValueToInt = compose(Math.round, parseFloat);
-
 const processSequence = ({ value, writeLog, handleSuccess, handleError }) => {
 	const hangdleErrorMessage = compose(handleError, getMessage);
 
@@ -67,6 +67,8 @@ const processSequence = ({ value, writeLog, handleSuccess, handleError }) => {
 		divideByThreeRemainder,
 		tap(writeLog),
 		pow,
+		tap(writeLog),
+		getLength,
 		tap(writeLog),
 		getResult
 	);
